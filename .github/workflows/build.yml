@@ -30,11 +30,11 @@ jobs:
           pip install -r requirements.txt
           pip install pyinstaller
 
-        # Force CPU torch on Linux to avoid 2GB CUDA install
-        if [ "$RUNNER_OS" = "Linux" ]; then
-            pip uninstall -y torch torchvision
-            pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-        fi
+      - name: Force CPU torch on Linux
+        if: runner.os == 'Linux'
+        run: |
+          pip uninstall -y torch torchvision
+          pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
         
       - name: Show installed packages
         run: pip list
