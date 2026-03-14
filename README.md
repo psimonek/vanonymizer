@@ -17,17 +17,25 @@ Detekuje a anonymizuje:
 - sledování objektů mezi snímky
 - podpora CPU / Apple Silicon (MPS) / CUDA
 
-## Instalace
+## Instalace v Pythonu
 
 pip install -r requirements.txt
 
-## CLI
+## Spuštění CLI v Pythonu
 
 python cli.py --help
 
 ## Build binárního souboru
 
 pyinstaller vanonymizer.spec
+
+## Binární soubory
+
+V Realeases jsou k dispozici ke stažení kompilované soubory pro:
+
+- macOS s architekturou Silicon. Intel není kompilován.
+- Ubuntu Linux.
+- Windows.
 
 ## Licence
 
