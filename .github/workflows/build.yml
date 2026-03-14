@@ -29,6 +29,12 @@ jobs:
         run: |
           pip install -r requirements.txt
           pip install pyinstaller
+          
+          # remove CUDA libraries which explode Linux build size
+          pip uninstall -y nvidia-cublas-cu12 nvidia-cuda-runtime-cu12 nvidia-cudnn-cu12 nvidia-cufft-cu12 nvidia-curand-cu12 nvidia-cusolver-cu12 nvidia-cusparse-cu12 nvidia-nccl-cu12 || true
+
+      - name: Show installed packages
+        run: pip list
 
       - name: Prepare bin directory
         run: mkdir -p bin
