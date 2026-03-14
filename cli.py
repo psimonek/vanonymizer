@@ -27,7 +27,7 @@ def main():
     parser = CzechArgumentParser(
         prog="vanonymizer",
         description="vanonymizer – anonymizace obličejů, postav a SPZ ve videu by @psimonek.",
-        epilog="Příklad: vanonymizer input.mp4 output.mp4 --people --pixelate --detect-interval 2\n\u200b",
+        epilog="Příklad: vanonymizer input.mp4 output.mp4 --people --pixelate --detect-interval 2\n\nTip: nejlepší detekce vzhledem k rychlosti zpracování je dosaženo:\n     vanonymizer input.mp4 output.mp4 --detect-interval 3 --track-buffer 6 --pixelate\n\u200b",
         formatter_class=argparse.RawTextHelpFormatter
     )
 
