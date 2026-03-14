@@ -20,3 +20,6 @@ dist/
 
 # logs
 *.log
+
+# bin (řeší GitHub action)
+bin/

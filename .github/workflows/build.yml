@@ -6,9 +6,7 @@ on:
       - "v*"
 
 jobs:
-
   build:
-
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
@@ -16,21 +14,65 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - run: |
-          python -m pip install --upgrade pip
+      - name: Install dependencies
+        run: |
           pip install -r requirements.txt
           pip install pyinstaller
 
-      - run: pyinstaller vanonymizer.spec
+      - name: Prepare bin directory
+        run: mkdir -p bin
 
-      - uses: actions/upload-artifact@v4
+      # ---------------- MAC ----------------
+
+      - name: Download FFmpeg (macOS ARM)
+        if: runner.os == 'macOS'
+        run: |
+          mkdir -p bin/mac
+          curl -L https://www.osxexperts.net/ffmpeg7arm.zip -o ffmpeg.zip
+          unzip ffmpeg.zip
+          mv ffmpeg bin/mac/ffmpeg
+          chmod +x bin/mac/ffmpeg
+
+      # ---------------- LINUX ----------------
+
+      - name: Download FFmpeg (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          mkdir -p bin/linux
+          curl -L https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz -o ffmpeg.tar.xz
+          tar -xf ffmpeg.tar.xz
+          mv ffmpeg-*-static/ffmpeg bin/linux/
+          chmod +x bin/linux/ffmpeg
+
+      # ---------------- WINDOWS ----------------
+
+      - name: Download FFmpeg (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          mkdir bin/windows
+          Invoke-WebRequest https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip -OutFile ffmpeg.zip
+          Expand-Archive ffmpeg.zip -DestinationPath .
+          $dir = Get-ChildItem -Directory | Where-Object { $_.Name -like "ffmpeg*" } | Select-Object -First 1
+          Copy-Item "$($dir.FullName)\bin\ffmpeg.exe" "bin/windows\ffmpeg.exe"
+
+      # ---------------- BUILD ----------------
+
+      - name: Build with PyInstaller
+        run: pyinstaller vanonymizer.spec
+
+      # ---------------- ARTIFACT ----------------
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
         with:
           name: vanonymizer-${{ runner.os }}
-          path: dist/
+          path: dist/*

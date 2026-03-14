@@ -1,5 +1,6 @@
 # vanonymizer.spec
 
+import sys
 from PyInstaller.utils.hooks import collect_all
 
 block_cipher = None
@@ -7,13 +8,23 @@ block_cipher = None
 ultra_datas, ultra_bins, ultra_hidden = collect_all("ultralytics")
 insight_datas, insight_bins, insight_hidden = collect_all("insightface")
 
+# --- FFmpeg podle OS ---
+ffmpeg_bin = []
+
+if sys.platform == "darwin":
+    ffmpeg_bin.append(("bin/mac/ffmpeg", "bin"))
+
+elif sys.platform == "linux":
+    ffmpeg_bin.append(("bin/linux/ffmpeg", "bin"))
+
+elif sys.platform == "win32":
+    ffmpeg_bin.append(("bin/windows/ffmpeg.exe", "bin"))
+
 a = Analysis(
     ["cli.py"],
     pathex=["."],
 
-    binaries=ultra_bins + insight_bins + [
-        ("bin/ffmpeg", "bin"),
-    ],
+    binaries=ultra_bins + insight_bins + ffmpeg_bin,
 
     datas=ultra_datas + insight_datas + [
         ("model", "model"),
@@ -35,7 +46,6 @@ a = Analysis(
     hookspath=[],
     runtime_hooks=[],
     excludes=[],
-
 )
 
 pyz = PYZ(a.pure)

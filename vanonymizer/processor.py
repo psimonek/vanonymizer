@@ -31,9 +31,22 @@ def resource_path(relative_path):
     base_path = getattr(sys, "_MEIPASS", os.path.abspath("."))
     return os.path.join(base_path, relative_path)
 
+
+def get_ffmpeg_path():
+    """Vrátí správnou cestu k FFmpeg (funguje i v PyInstaller bundle)."""
+    if sys.platform == "win32":
+        return resource_path("bin/ffmpeg.exe")
+    else:
+        return resource_path("bin/ffmpeg")
+
 class VideoProcessor:
     def __init__(self, config=None):
         self.config = config or {}
+
+        # FFmpeg binary
+        self.ffmpeg_path = get_ffmpeg_path()
+        if not os.path.exists(self.ffmpeg_path):
+            raise RuntimeError(f"FFmpeg binary nebyla nalezena: {self.ffmpeg_path}")
         
         self.yolo_people = None
         self.yolo_lp = None
