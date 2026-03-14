@@ -74,8 +74,9 @@ jobs:
 
       # ---------------- PACKAGE ----------------
 
-      - name: Package binary
-        run: python -c "import shutil; shutil.make_archive('vanonymizer-${{ runner.os }}','zip','dist')"
+      - - name: Package binary
+          run: |
+            python -c "import shutil, os; p='dist/vanonymizer' if os.path.exists('dist/vanonymizer') else 'dist'; shutil.make_archive('vanonymizer-${{ runner.os }}','zip',p)"
 
       # ---------------- ARTIFACT ----------------
 
