@@ -1,4 +1,4 @@
-name: Build binaries
+name: Build and Release
 
 on:
   push:
@@ -35,7 +35,7 @@ jobs:
 
       # ---------------- MAC ----------------
 
-      - name: Download FFmpeg (macOS ARM)
+      - name: Download FFmpeg (macOS)
         if: runner.os == 'macOS'
         run: |
           mkdir -p bin/mac
@@ -72,19 +72,37 @@ jobs:
       - name: Build with PyInstaller
         run: pyinstaller vanonymizer.spec
 
-      # ---------------- ZIP ----------------
+      # ---------------- PACKAGE ----------------
 
-      - name: Zip binary
+      - name: Package binary
         run: |
-          mkdir release
-          cp -r dist/* release/
-          cd release
-          zip -r vanonymizer-${{ runner.os }}.zip .
+          python - <<EOF
+          import shutil
+          name = "vanonymizer-${{ runner.os }}"
+          shutil.make_archive(name, "zip", "dist")
+          print("Created archive:", name + ".zip")
+          EOF
 
-      # ---------------- RELEASE ----------------
+      # ---------------- ARTIFACT ----------------
 
-      - name: Upload release
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vanonymizer-${{ runner.os }}
+          path: vanonymizer-${{ runner.os }}.zip
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
-          files: release/*.zip
+          files: artifacts/**/*.zip
