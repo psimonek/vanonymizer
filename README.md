@@ -8,17 +8,26 @@ Detekuje a anonymizuje:
 - osoby
 - registrační značky
 
+## Funkce
+
+- detekce obličejů
+- detekce osob
+- detekce SPZ
+- blur / pixelate / blackbox
+- sledování objektů mezi snímky
+- podpora CPU / Apple Silicon (MPS) / CUDA
+
 ## Instalace
 
 pip install -r requirements.txt
 
-## Použití
-
-python cli.py input.mp4 output.mp4
-
 ## CLI
 
 python cli.py --help
+
+## Build binárního souboru
+
+pyinstaller vanonymizer.spec
 
 ## Licence
 
