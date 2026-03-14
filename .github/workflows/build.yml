@@ -69,10 +69,19 @@ jobs:
       - name: Build with PyInstaller
         run: pyinstaller vanonymizer.spec
 
-      # ---------------- ARTIFACT ----------------
+      # ---------------- ZIP ----------------
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+      - name: Zip binary
+        run: |
+          mkdir release
+          cp -r dist/* release/
+          cd release
+          zip -r vanonymizer-${{ runner.os }}.zip .
+
+      # ---------------- RELEASE ----------------
+
+      - name: Upload release
+        uses: softprops/action-gh-release@v2
         with:
-          name: vanonymizer-${{ runner.os }}
-          path: dist/*
+          tag_name: ${{ github.ref_name }}
+          files: release/*.zip
