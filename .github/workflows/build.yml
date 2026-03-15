@@ -25,17 +25,32 @@ jobs:
         with:
           python-version: "3.11"
 
+      # ---------------- LINUX SYSTEM LIBS ----------------
+
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libgl1 \
+            libglib2.0-0 \
+            libxcb1
+
+      # ---------------- PYTHON DEPENDENCIES ----------------
+
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
           pip install pyinstaller
+
+      # ---------------- FORCE CPU TORCH ----------------
 
       - name: Force CPU torch on Linux
         if: runner.os == 'Linux'
         run: |
           pip uninstall -y torch torchvision
           pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-        
+
       - name: Show installed packages
         run: pip list
 
@@ -81,6 +96,59 @@ jobs:
       - name: Build with PyInstaller
         run: pyinstaller vanonymizer.spec
 
+      # ---------------- TEST BINARY ----------------
+
+      - name: Test binary (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          chmod +x dist/vanonymizer/vanonymizer || true
+          ./dist/vanonymizer/vanonymizer --help
+          ./dist/vanonymizer/vanonymizer --help | head
+
+      - name: Test binary (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          ./dist/vanonymizer/vanonymizer/vanonymizer.exe --help
+          ./dist/vanonymizer/vanonymizer/vanonymizer.exe --help | Select-Object -First 20
+
+       # ---------------- TEST FUNKČNOSTI ----------------
+
+      - name: Download test image
+        if: runner.os != 'Windows'
+        run: |
+          curl -L https://raw.githubusercontent.com/opencv/opencv/master/samples/data/lena.jpg -o test.jpg
+
+      - name: Run anonymization test
+        if: runner.os != 'Windows'
+        run: |
+          ./dist/vanonymizer/vanonymizer test.jpg --output out.jpg || true
+          ls -lah
+
+      - name: Download test image (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Invoke-WebRequest https://raw.githubusercontent.com/opencv/opencv/master/samples/data/lena.jpg -OutFile test.jpg
+
+      - name: Run anonymization test (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          ./dist/vanonymizer/vanonymizer/vanonymizer.exe test.jpg --output out.jpg
+          dir
+
+      - name: Verify output file
+        if: runner.os != 'Windows'
+        run: |
+          test -f out.jpg
+
+      - name: Verify output file (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          if (!(Test-Path out.jpg)) { exit 1 }
+
       # ---------------- PACKAGE ----------------
 
       - name: Package binary
@@ -94,6 +162,7 @@ jobs:
         with:
           name: vanonymizer-${{ runner.os }}
           path: vanonymizer-${{ runner.os }}.zip
+
 
   release:
     needs: build
