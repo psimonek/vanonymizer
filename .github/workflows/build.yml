@@ -128,13 +128,13 @@ jobs:
       - name: Verify output video
         if: runner.os != 'Windows'
         run: |
-          test -s out.mp4
+          test -s out_mac_lin.mp4
 
       - name: Verify output video (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          if (!(Test-Path out.mp4)) { exit 1 }
+          if (!(Test-Path out_win.mp4)) { exit 1 }
 
       # ---------------- PACKAGE ----------------
 
