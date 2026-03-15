@@ -96,7 +96,7 @@ jobs:
       - name: Build with PyInstaller
         run: pyinstaller vanonymizer.spec
 
-      # ---------------- TEST BINARY ----------------
+      # ---------------- TEST CLI ----------------
 
       - name: Test binary (Linux/macOS)
         if: runner.os != 'Windows'
@@ -112,42 +112,29 @@ jobs:
           ./dist/vanonymizer/vanonymizer/vanonymizer.exe --help
           ./dist/vanonymizer/vanonymizer/vanonymizer.exe --help | Select-Object -First 20
 
-       # ---------------- TEST FUNKČNOSTI ----------------
+      # ---------------- TEST FUNKČNOSTI ----------------
 
-      - name: Download test image
+      - name: Run anonymization test (Linux/macOS)
         if: runner.os != 'Windows'
         run: |
-          curl -L https://raw.githubusercontent.com/opencv/opencv/master/samples/data/lena.jpg -o test.jpg
-
-      - name: Run anonymization test
-        if: runner.os != 'Windows'
-        run: |
-          ./dist/vanonymizer/vanonymizer test.jpg --output out.jpg || true
-          ls -lah
-
-      - name: Download test image (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          Invoke-WebRequest https://raw.githubusercontent.com/opencv/opencv/master/samples/data/lena.jpg -OutFile test.jpg
+          ./dist/vanonymizer/vanonymizer tests/assets/test_faces.mp4 --output out.mp4
 
       - name: Run anonymization test (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          ./dist/vanonymizer/vanonymizer/vanonymizer.exe test.jpg --output out.jpg
-          dir
+          ./dist/vanonymizer/vanonymizer/vanonymizer.exe tests/assets/test_faces.mp4 --output out.mp4
 
-      - name: Verify output file
+      - name: Verify output video
         if: runner.os != 'Windows'
         run: |
-          test -f out.jpg
+          test -s out.mp4
 
-      - name: Verify output file (Windows)
+      - name: Verify output video (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          if (!(Test-Path out.jpg)) { exit 1 }
+          if (!(Test-Path out.mp4)) { exit 1 }
 
       # ---------------- PACKAGE ----------------
 
