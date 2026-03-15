@@ -69,10 +69,17 @@ class VideoProcessor:
     # ---------- POMOCNÉ FUNKCE ----------
 
     def get_best_encoder(self):
-        """Vybere HW akcelerovaný enkodér podle platformy."""
         curr_os = platform.system()
-        if curr_os == "Darwin": return "h264_videotoolbox"
-        if self.device == "cuda": return "h264_nvenc"
+    
+        if curr_os == "Darwin":
+            # CI runner nemá HW encoder
+            if os.environ.get("CI"):
+                return "libx264"
+            return "h264_videotoolbox"
+    
+        if self.device == "cuda":
+            return "h264_nvenc"
+    
         return "libx264"
 
     def load_people_model(self):
