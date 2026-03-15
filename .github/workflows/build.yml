@@ -103,14 +103,12 @@ jobs:
         run: |
           chmod +x dist/vanonymizer/vanonymizer || true
           ./dist/vanonymizer/vanonymizer --help
-          ./dist/vanonymizer/vanonymizer --help | head
 
       - name: Test binary (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          & ".\dist\vanonymizer\vanonymizer\vanonymizer.exe" --help
-          & ".\dist\vanonymizer\vanonymizer\vanonymizer.exe" --help | Select-Object -First 20
+          & ".\dist\vanonymizer\vanonymizer.exe" --help
 
       # ---------------- TEST FUNKČNOSTI ----------------
 
@@ -123,7 +121,7 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          & ".\dist\vanonymizer\vanonymizer\vanonymizer.exe" test/assets/test_faces.mp4 out_win.mp4
+          & ".\dist\vanonymizer\vanonymizer.exe" test/assets/test_faces.mp4 out_win.mp4
 
       - name: Verify output video
         if: runner.os != 'Windows'
