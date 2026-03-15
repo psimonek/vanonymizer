@@ -117,13 +117,13 @@ jobs:
       - name: Run anonymization test (Linux/macOS)
         if: runner.os != 'Windows'
         run: |
-          ./dist/vanonymizer/vanonymizer tests/assets/test_faces.mp4 --output out.mp4
+          ./dist/vanonymizer/vanonymizer tests/assets/test_faces.mp4 out_mac_lin.mp4
 
       - name: Run anonymization test (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          ./dist/vanonymizer/vanonymizer/vanonymizer.exe tests/assets/test_faces.mp4 --output out.mp4
+          ./dist/vanonymizer/vanonymizer/vanonymizer.exe tests/assets/test_faces.mp4 out_win.mp4
 
       - name: Verify output video
         if: runner.os != 'Windows'
